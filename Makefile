@@ -1,3 +1,5 @@
+DIR = ../ray-tracer
+
 all: build
 
 build:
@@ -8,5 +10,6 @@ clean:
 	rm -r bin obj
 
 test: build
-	(cd ../ray-tracer; git checkout -- *.hs)
+	(cd $(DIR); git checkout -- *.hs)
 	bin/rh ../ray-tracer/*.hs
+	(cd $(DIR); git diff *.hs)

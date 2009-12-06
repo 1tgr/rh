@@ -7,6 +7,7 @@ import List
 
 data Tree l = ActivationT (Activation l)
             | AssocT (Assoc l)
+            | AsstT (Asst l)
             | BindsT (Binds l)
             | CallConvT (CallConv l)
             | ClassDeclT (ClassDecl l)
@@ -53,6 +54,7 @@ class AnnotatedTree ast where
 tmap2 :: (Tree l -> Tree l) -> Tree l -> Tree l
 tmap2 f (ActivationT x) = tree $ tmap f $ x
 tmap2 f (AssocT x) = tree $ tmap f $ x
+tmap2 f (AsstT x) = tree $ tmap f $ x
 tmap2 f (BindsT x) = tree $ tmap f $ x
 tmap2 f (CallConvT x) = tree $ tmap f $ x
 tmap2 f (ClassDeclT x) = tree $ tmap f $ x
@@ -100,6 +102,12 @@ instance AnnotatedTree Assoc where
   untree (AssocT x) = x
   untree _ = error "expected AssocT"
 
+instance AnnotatedTree Asst where
+  tree = AsstT
+
+  untree (AsstT x) = x
+  untree _ = error "expected AsstT"
+
 instance AnnotatedTree Binds where
   tree = BindsT
 
@@ -123,6 +131,11 @@ instance AnnotatedTree Context where
 
   untree (ContextT x) = x
   untree _ = error "expected ContextT"
+
+  tmap f (CxSingle l asst) = CxSingle l ((untree . f . tree) asst)
+  tmap f (CxTuple l assts) = CxTuple l (map (untree . f . tree) assts)
+  tmap f (CxParen l ctxt)  = CxParen l ((untree . f . tree) ctxt)
+  tmap _ (CxEmpty l)       = CxEmpty l
 
 instance AnnotatedTree DataOrNew where
   tree = DataOrNewT

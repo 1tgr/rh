@@ -2,7 +2,6 @@
 module Main where
 
 import Data.Data
-import Debug.Trace
 import IO
 import Language.Haskell.Exts.Annotated
 import Language.Haskell.Exts.Annotated.ExactPrint
@@ -22,17 +21,14 @@ transformFile f path = do
 
 renameType :: (Data l, SrcInfo l) => String -> String -> Tree l -> Tree l
 renameType oldName newName = f
-  where f t | DeclT (DataDecl l dn mcx (DHead l' (Ident l'' name) tvs) cds ders) <- t, 
-              name == oldName = trace ("\tDataDecl: name = " ++ name) $
-                                DeclT (DataDecl l (tmap f dn) 
-                                                  (fmap (tmap f) mcx) 
-                                                  (DHead l' (Ident l'' newName) (map (tmap f) tvs))
-                                                  ( map (tmap f) cds)
-                                                  (fmap (tmap f) ders))
+  where f t | AsstT (ClassA l (UnQual l' (Ident l'' name)) ts) <- t,
+              name == oldName = tree $ ClassA l (UnQual l' (Ident l'' newName)) (map (tmap f) ts)
+            | DeclHeadT (DHead l (Ident l' name) tvs) <- t, 
+              name == oldName = tree $ DHead l (Ident l' newName) (map (tmap f) tvs)
             | otherwise = tmap2 f t
 
 main :: IO Int
-main = catch (do getArgs >>= mapM_ (transformFile (renameType "NumVector" "NumVector'"))
+main = catch (do getArgs >>= mapM_ (transformFile (renameType "Vector" "Bector"))
                  putStrLn "Finished"
                  return 0)
              (\e -> do hPutStrLn stderr (show e)
