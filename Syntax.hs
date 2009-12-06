@@ -232,11 +232,24 @@ instance AnnotatedTree InstDecl where
   untree (InstDeclT x) = x
   untree _ = error "expected InstDeclT"
 
+  tmap f id = case id of
+      InsDecl   l d           -> InsDecl l ((untree . f . tree) d)
+      InsType   l t1 t2       -> InsType l ((untree . f . tree) t1) ((untree . f . tree) t2)
+      InsData   l dn t    cds ders
+          -> InsData  l ((untree . f . tree) dn) ((untree . f . tree) t)                    (map (untree . f . tree) cds) (fmap (untree . f . tree) ders)
+      InsGData  l dn t mk gds ders
+          -> InsGData l ((untree . f . tree) dn) ((untree . f . tree) t) (fmap (untree . f . tree) mk) (map (untree . f . tree) gds) (fmap (untree . f . tree) ders)
+      InsInline l b mact qn   -> InsInline l b (fmap (untree . f . tree) mact) ((untree . f . tree) qn)
+
 instance AnnotatedTree InstHead where
   tree = InstHeadT
 
   untree (InstHeadT x) = x
   untree _ = error "expected InstHeadT"
+  
+  tmap f (IHead l qn ts)       = IHead l ((untree . f . tree) qn) (map (untree . f . tree) ts)
+  tmap f (IHInfix l ta qn tb)  = IHInfix l ((untree . f . tree) ta) ((untree . f . tree) qn) ((untree . f . tree) tb)
+  tmap f (IHParen l ih)        = IHParen l ((untree . f . tree) ih)
 
 instance AnnotatedTree Kind where
   tree = KindT

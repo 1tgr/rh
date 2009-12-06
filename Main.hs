@@ -24,6 +24,7 @@ renameType :: (Data l, SrcInfo l) => String -> String -> Tree l -> Tree l
 renameType oldName newName = f
   where f t | AsstT     (ClassA  l (UnQual l' (Ident l'' name)) ts)  <- t, name == oldName = tree $ ClassA l (UnQual l' (Ident l'' newName)) (map (tmap f) ts)
             | DeclHeadT (DHead   l            (Ident l'  name)  tvs) <- t, name == oldName = tree $ DHead l             (Ident l'  newName)  (map (tmap f) tvs)
+            | InstHeadT (IHead   l (UnQual l' (Ident l'' name)) ts)  <- t, name == oldName = tree $ IHead l  (UnQual l' (Ident l'' newName)) (map (tmap f) ts)
             | TypeT     (TyCon   l (UnQual l' (Ident l'' name)))     <- t, name == oldName = tree $ TyCon l  (UnQual l' (Ident l'' newName))
             | otherwise = tmap2 f t
 
