@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 module Rh.Syntax where
-  
+
 import Data.Data
 import Language.Haskell.Exts.Annotated
 import List
@@ -246,7 +246,7 @@ instance AnnotatedTree InstHead where
 
   untree (InstHeadT x) = x
   untree _ = error "expected InstHeadT"
-  
+
   tmap f (IHead l qn ts)       = IHead l ((untree . f . tree) qn) (map (untree . f . tree) ts)
   tmap f (IHInfix l ta qn tb)  = IHInfix l ((untree . f . tree) ta) ((untree . f . tree) qn) ((untree . f . tree) tb)
   tmap f (IHParen l ih)        = IHParen l ((untree . f . tree) ih)
@@ -300,7 +300,7 @@ instance AnnotatedTree ModuleHead where
   untree _ = error "expected ModuleHeadT"
 
   tmap f (ModuleHead l mn mwt mexpl) =
-      ModuleHead l (     (untree . f . tree) mn) 
+      ModuleHead l (     (untree . f . tree) mn)
                    (fmap (untree . f . tree) mwt)
                    (fmap (untree . f . tree) mexpl)
 
@@ -369,7 +369,7 @@ instance AnnotatedTree Type where
 
   untree (TypeT x) = x
   untree _ = error "expected TypeT"
-  
+
   tmap f t = case t of
     TyForall l mtvs mcx t         -> TyForall l (fmap (map (untree . f . tree)) mtvs) (fmap (untree . f . tree) mcx) ((untree . f . tree) t)
     TyFun   l t1 t2               -> TyFun l ((untree . f . tree) t1) ((untree . f . tree) t2)

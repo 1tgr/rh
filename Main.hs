@@ -2,7 +2,6 @@
 module Main where
 
 import Data.Data
-import Debug.Trace
 import IO
 import Language.Haskell.Exts.Annotated
 import Language.Haskell.Exts.Annotated.ExactPrint
