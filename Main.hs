@@ -23,24 +23,24 @@ class AnnotatedTree ast where
 
 instance AnnotatedTree Module where
   tmap f (Module l mmh ops iss dcls) =
-      Module l (fmap ((\(ModuleHeadT   x) -> x) . f . ModuleHeadT  ) mmh) 
-               ( map ((\(OptionPragmaT x) -> x) . f . OptionPragmaT) ops) 
-               ( map ((\(ImportDeclT   x) -> x) . f . ImportDeclT  ) iss) 
+      Module l (fmap ((\(ModuleHeadT   x) -> x) . f . ModuleHeadT  ) mmh)
+               ( map ((\(OptionPragmaT x) -> x) . f . OptionPragmaT) ops)
+               ( map ((\(ImportDeclT   x) -> x) . f . ImportDeclT  ) iss)
                ( map ((\(DeclT         x) -> x) . f . DeclT        ) dcls)
   tmap f (XmlPage l n ops xn xas me es) =
       XmlPage l (     ((\(ModuleNameT   x) -> x) . f . ModuleNameT  ) n)
-                ( map ((\(OptionPragmaT x) -> x) . f . OptionPragmaT) ops) 
-                (     ((\(XNameT        x) -> x) . f . XNameT       ) xn) 
-                ( map ((\(XAttrT        x) -> x) . f . XAttrT       ) xas) 
-                (fmap ((\(ExpT          x) -> x) . f . ExpT         ) me) 
+                ( map ((\(OptionPragmaT x) -> x) . f . OptionPragmaT) ops)
+                (     ((\(XNameT        x) -> x) . f . XNameT       ) xn)
+                ( map ((\(XAttrT        x) -> x) . f . XAttrT       ) xas)
+                (fmap ((\(ExpT          x) -> x) . f . ExpT         ) me)
                 ( map ((\(ExpT          x) -> x) . f . ExpT         ) es)
   tmap f (XmlHybrid l mmh ops iss dcls xn xas me es) =
-      XmlHybrid l (fmap ((\(ModuleHeadT   x) -> x) . f . ModuleHeadT  ) mmh) 
-                  ( map ((\(OptionPragmaT x) -> x) . f . OptionPragmaT) ops) 
-                  ( map ((\(ImportDeclT   x) -> x) . f . ImportDeclT  ) iss) 
+      XmlHybrid l (fmap ((\(ModuleHeadT   x) -> x) . f . ModuleHeadT  ) mmh)
+                  ( map ((\(OptionPragmaT x) -> x) . f . OptionPragmaT) ops)
+                  ( map ((\(ImportDeclT   x) -> x) . f . ImportDeclT  ) iss)
                   ( map ((\(DeclT         x) -> x) . f . DeclT        ) dcls)
-                  (     ((\(XNameT        x) -> x) . f . XNameT       ) xn) 
-                  ( map ((\(XAttrT        x) -> x) . f . XAttrT       ) xas) 
+                  (     ((\(XNameT        x) -> x) . f . XNameT       ) xn)
+                  ( map ((\(XAttrT        x) -> x) . f . XAttrT       ) xas)
                   (fmap ((\(ExpT          x) -> x) . f . ExpT         ) me)
                   ( map ((\(ExpT          x) -> x) . f . ExpT         ) es)
 
@@ -49,11 +49,11 @@ transformFile f path = do
   putStrLn ("Updating " ++ path)
   result <- parseFileWithExts glasgowExts path
   case result of
-    ParseOk m -> writeFile path 
-               $ flip exactPrint [] 
+    ParseOk m -> writeFile path
+               $ flip exactPrint []
                $ tmap f m
     ParseFailed l str -> ioError
-                       $ userError 
+                       $ userError
                        $ "Parse failed at (" ++ show (srcLine l) ++ ":" ++ show (srcColumn l) ++ "): " ++ str
 
 transform :: (SrcInfo l, Show l) => Tree l -> Tree l
