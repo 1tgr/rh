@@ -356,6 +356,18 @@ instance AnnotatedTree Type where
 
   untree (TypeT x) = x
   untree _ = error "expected TypeT"
+  
+  tmap f t = case t of
+    TyForall l mtvs mcx t         -> TyForall l (fmap (map (untree . f . tree)) mtvs) (fmap (untree . f . tree) mcx) ((untree . f . tree) t)
+    TyFun   l t1 t2               -> TyFun l ((untree . f . tree) t1) ((untree . f . tree) t2)
+    TyTuple l b ts                -> TyTuple l b (map (untree . f . tree) ts)
+    TyList  l t                   -> TyList l ((untree . f . tree) t)
+    TyApp   l t1 t2               -> TyApp l ((untree . f . tree) t1) ((untree . f . tree) t2)
+    TyVar   l n                   -> TyVar l ((untree . f . tree) n)
+    TyCon   l qn                  -> TyCon l ((untree . f . tree) qn)
+    TyParen l t                   -> TyParen l ((untree . f . tree) t)
+    TyInfix l ta qn tb            -> TyInfix l ((untree . f . tree) ta) ((untree . f . tree) qn) ((untree . f . tree) tb)
+    TyKind  l t k                 -> TyKind l ((untree . f . tree) t) ((untree . f . tree) k)
 
 instance AnnotatedTree TyVarBind where
   tree = TyVarBindT

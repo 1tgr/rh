@@ -11,5 +11,5 @@ clean:
 
 test: build
 	(cd $(DIR); git checkout -- *.hs)
-	bin/rh ../ray-tracer/*.hs
+	bin/rh Shader NewShader ../ray-tracer/*.hs
 	(cd $(DIR); git diff *.hs)
