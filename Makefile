@@ -12,4 +12,5 @@ clean:
 test: build
 	(cd $(DIR); git checkout -- *.hs)
 	bin/rh Vector Bector ../ray-tracer/*.hs
+	bin/rh Shader Bhader ../ray-tracer/*.hs
 	(cd $(DIR); git diff *.hs)
