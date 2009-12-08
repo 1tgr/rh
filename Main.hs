@@ -1,6 +1,7 @@
-{-# LANGUAGE PatternGuards #-}
+{-# LANGUAGE PatternGuards, ScopedTypeVariables #-}
 module Main where
 
+import Data.Data
 import Data.Generics.PlateData
 import IO
 import Language.Haskell.Exts.Annotated
@@ -18,14 +19,9 @@ transformFile f path = do
                        $ userError
                        $ "Parse failed at (" ++ show (srcLine l) ++ ":" ++ show (srcColumn l) ++ "): " ++ str
 
-renameType :: String -> String -> Module SrcSpanInfo -> Module SrcSpanInfo
+renameType :: forall l. Data l => String -> String -> Module l -> Module l
 renameType oldName newName = 
-  let f1 :: Asst SrcSpanInfo -> Maybe (Asst SrcSpanInfo)
-      f2 :: DeclHead SrcSpanInfo -> Maybe (DeclHead SrcSpanInfo)
-      f3 :: InstHead SrcSpanInfo -> Maybe (InstHead SrcSpanInfo)
-      f4 :: Type SrcSpanInfo -> Maybe (Type SrcSpanInfo)
-  
-      f1 t | ClassA  l (UnQual l' (Ident l'' name)) ts <- t,  name == oldName = Just $ ClassA l (UnQual l' (Ident l'' newName)) ts
+  let f1 t | ClassA  l (UnQual l' (Ident l'' name)) ts <- t,  name == oldName = Just $ ClassA l (UnQual l' (Ident l'' newName)) ts
            | otherwise = Nothing
 
       f2 t | DHead   l            (Ident l'  name)  tvs <- t, name == oldName = Just $ DHead l             (Ident l'  newName)  tvs
@@ -37,10 +33,10 @@ renameType oldName newName =
       f4 t | TyCon   l (UnQual l' (Ident l'' name)) <- t,     name == oldName = Just $ TyCon l  (UnQual l' (Ident l'' newName))
            | otherwise = Nothing
   
-  in rewriteBi f1
-   . rewriteBi f2 
-   . rewriteBi f3 
-   . rewriteBi f4
+  in rewriteBi (f1 :: Asst l -> Maybe (Asst l))
+   . rewriteBi (f2 :: DeclHead l -> Maybe (DeclHead l))
+   . rewriteBi (f3 :: InstHead l -> Maybe (InstHead l))
+   . rewriteBi (f4 :: Type l -> Maybe (Type l))
 
 main :: IO Int
 main = catch (do oldName : newName : args <- getArgs
