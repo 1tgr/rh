@@ -7,4 +7,4 @@ import Language.Haskell.Exts.Annotated
 type Refactor a = State (Map (Int, Int) Int) a
 
 widen :: SrcInfo a => Int -> a -> Refactor ()
-widen spaces s = get >>= put . insert (startLine s, startColumn s) spaces
+widen spaces s = get >>= put . insertWith (+) (startLine s, startColumn s) spaces

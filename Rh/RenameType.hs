@@ -13,33 +13,20 @@ renameType oldName newName m = rewriteBiM (asstM :: Asst l -> Refactor (Maybe (A
                                rewriteBiM (exportSpecM :: ExportSpec l -> Refactor (Maybe (ExportSpec l))) >>=
                                rewriteBiM (instHeadM :: InstHead l -> Refactor (Maybe (InstHead l))) >>=
                                rewriteBiM (typeM :: Type l -> Refactor (Maybe (Type l)))
-  where w = widen $ (length newName) - (length oldName)
-        asstM t       | ClassA  l (UnQual l' (Ident l'' name)) ts <- t
-                      , name == oldName
-                      = do w l''
-                           return $ Just $ ClassA l (UnQual l' (Ident l'' newName)) ts
+  where n = (length newName) - (length oldName)
+        renamed loc t = do widen n loc
+                           return $ Just t
+        asstM t       | ClassA  l (UnQual l' (Ident l'' name)) ts  <- t, name == oldName = renamed l'' $ ClassA l (UnQual l' (Ident l'' newName)) ts
                       | otherwise = return Nothing
 
-        declHeadM t   | DHead   l            (Ident l'' name)  tvs <- t
-                      , name == oldName
-                      = do w l''
-                           return $ Just $ DHead l             (Ident l'' newName)  tvs
+        declHeadM t   | DHead   l            (Ident l'' name)  tvs <- t, name == oldName = renamed l'' $ DHead l             (Ident l'' newName)  tvs
                       | otherwise = return Nothing
 
-        exportSpecM t | EAbs    l (UnQual l' (Ident l'' name))    <- t
-                      , name == oldName
-                      = do w l''
-                           return $ Just $ EAbs   l (UnQual l' (Ident l'' newName))
+        exportSpecM t | EAbs    l (UnQual l' (Ident l'' name))     <- t, name == oldName = renamed l'' $ EAbs   l (UnQual l' (Ident l'' newName))
                       | otherwise = return Nothing
 
-        instHeadM t   | IHead   l (UnQual l' (Ident l'' name)) ts <- t
-                      , name == oldName
-                      = do w l''
-                           return $ Just $ IHead l  (UnQual l' (Ident l'' newName)) ts
+        instHeadM t   | IHead   l (UnQual l' (Ident l'' name)) ts  <- t, name == oldName = renamed l'' $ IHead l  (UnQual l' (Ident l'' newName)) ts
                       | otherwise = return Nothing
 
-        typeM t       | TyCon   l (UnQual l' (Ident l'' name)) <- t
-                      , name == oldName 
-                      = do w l''
-                           return $ Just $ TyCon l  (UnQual l' (Ident l'' newName))
+        typeM t       | TyCon   l (UnQual l' (Ident l'' name))     <- t, name == oldName = renamed l'' $ TyCon l  (UnQual l' (Ident l'' newName))
                       | otherwise = return Nothing
