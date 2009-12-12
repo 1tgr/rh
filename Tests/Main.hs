@@ -32,4 +32,9 @@ main = runTestTT $ TestList t
                "Renaming type, decreasing spacing" ~:
                   let input = "data Blah = Blah\n"
                       expectedProgram = "data B = Blah\n"
-                   in transformFileContents (renameType "Blah" "B") input ~?= Left expectedProgram ]
+                   in transformFileContents (renameType "Blah" "B") input ~?= Left expectedProgram,
+                   
+               "Renaming exported type" ~:
+                  let input = "module Main(Blah) where\ndata Blah = Blah\n"
+                      expectedProgram = "module Main(NewBlah) where\ndata NewBlah = Blah\n"
+                   in transformFileContents (renameType "Blah" "NewBlah") input ~?= Left expectedProgram ]
