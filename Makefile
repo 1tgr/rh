@@ -1,5 +1,5 @@
 DIR = ../ray-tracer
-GHCFLAGS = --make -Wall -fno-warn-name-shadowing -outputdir obj -iRh
+GHCFLAGS = --make -Wall -fno-warn-name-shadowing -iRh
 
 all: build-program build-tests
 
@@ -7,10 +7,10 @@ init:
 	mkdir -p bin obj
 
 build-program: init
-	ghc $(GHCFLAGS) -o bin/rh Program/*.hs
+	ghc $(GHCFLAGS) -outputdir obj/rh -o bin/rh Program/*.hs
 
 build-tests: init
-	ghc $(GHCFLAGS) -o bin/tests Tests/*.hs
+	ghc $(GHCFLAGS) -outputdir obj/tests -o bin/tests Tests/*.hs
 
 clean:
 	rm -r bin obj
