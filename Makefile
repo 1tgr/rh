@@ -1,16 +1,25 @@
 DIR = ../ray-tracer
+GHCFLAGS = --make -Wall -fno-warn-name-shadowing -outputdir obj -iRh
 
-all: build
+all: build-program build-tests
 
-build:
+init:
 	mkdir -p bin obj
-	ghc --make -Wall -fno-warn-name-shadowing -o bin/rh -outputdir obj *.hs
+
+build-program: init
+	ghc $(GHCFLAGS) -o bin/rh Program/*.hs
+
+build-tests: init
+	ghc $(GHCFLAGS) -o bin/tests Tests/*.hs
 
 clean:
 	rm -r bin obj
 
-test: build
+test-program: build-program
 	(cd $(DIR); git checkout -- *.hs)
 	bin/rh Vector ZVector ../ray-tracer/*.hs
 	bin/rh Shader VShader ../ray-tracer/*.hs
 	(cd $(DIR); git diff *.hs)
+
+tests: build-tests
+	bin/tests
