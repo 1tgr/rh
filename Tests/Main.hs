@@ -8,11 +8,11 @@ main :: IO Counts
 main = runTestTT $ TestList t
   where t = [ "Transforming an invalid program should result in an error" ~:
                 let input = "??? LOL PONIES"
-                 in transformFileContents id input ~?= Right "Parse failed at (1:1): Parse error: ???",
+                 in transformFileContents return input ~?= Right "Parse failed at (1:1): Parse error: ???",
 
                "Transforming nothing should change nothing" ~:
                  let input = "data NotBlah = NotBlah\n"
-                  in transformFileContents id input ~?= Left input,
+                  in transformFileContents return input ~?= Left input,
 
                "Renaming nonexistent type should change nothing" ~:
                  let input = "data NotBlah = NotBlah\n"
