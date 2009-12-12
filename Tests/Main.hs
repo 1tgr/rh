@@ -25,8 +25,9 @@ main = runTestTT $ TestList t
                   
                "Renaming type, increasing spacing" ~:
                   let input = "data Blah = Blah\n"
-                      expectedProgram = "data NewBlah = Blah\n"
-                   in transformFileContents (renameType "Blah" "NewBlah") input ~?= Left expectedProgram,
+                      expectedProgram = Left "data NewBlah = Blah\n"
+                      actualProgram = transformFileContents (renameType "Blah" "NewBlah") input
+                   in actualProgram ~?= expectedProgram,
                    
                "Renaming type, decreasing spacing" ~:
                   let input = "data Blah = Blah\n"
