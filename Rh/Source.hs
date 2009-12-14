@@ -1,14 +1,11 @@
 {-# LANGUAGE PatternGuards #-}
-module Rh.Source(transformModule, transformFile, transformFileContents) where
+module Rh.Source(transformModule, transformFile, transformFileContents, transformFileOrStdin) where
 
 import Control.Monad.State.Lazy
-import Data.Data
 import Data.Generics.PlateData
 import qualified Data.Map as Map
 import IO
-import Language.Haskell.Exts.Annotated
-import Language.Haskell.Exts.Annotated.ExactPrint
-import Rh.Monads
+import Rh.Refactoring
 
 applySpaces :: [ ((Int, Int), Int) ] -> SrcSpanInfo -> SrcSpanInfo
 applySpaces assocs loc | SrcSpanInfo { srcInfoSpan = s, srcInfoPoints = p } <- loc
@@ -37,3 +34,10 @@ transformFileContents :: (ExactP ast, Data (ast SrcSpanInfo), Functor ast) => (M
 transformFileContents f = transformFileContents' . parseFileContentsWithExts glasgowExts
   where transformFileContents' (ParseOk m) = Left $ flip exactPrint [] $ transformModule (f m)
         transformFileContents' (ParseFailed loc str) = Right $ formatError loc str
+
+transformFileOrStdin :: (ExactP ast, Data (ast SrcSpanInfo), Functor ast) => (Module SrcSpanInfo -> Refactor (ast SrcSpanInfo)) -> FilePath -> IO ()
+transformFileOrStdin f "-" = getContents >>= transformFileOrStdin' . transformFileContents f
+  where transformFileOrStdin' (Left s) = putStr s
+        transformFileOrStdin' (Right s) = hPutStrLn stderr s
+
+transformFileOrStdin f path = transformFile f path

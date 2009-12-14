@@ -1,5 +1,6 @@
 module Main where
 
+import Rh.ExtractValue
 import Rh.RenameType
 import Rh.Source
 import Test.HUnit
@@ -37,4 +38,9 @@ main = runTestTT $ TestList t
                "Renaming exported type" ~:
                   let input = "module Main(Blah) where\ndata Blah = Blah\n"
                       expectedProgram = "module Main(NewBlah) where\ndata NewBlah = Blah\n"
-                   in transformFileContents (renameType "Blah" "NewBlah") input ~?= Left expectedProgram ]
+                   in transformFileContents (renameType "Blah" "NewBlah") input ~?= Left expectedProgram,
+
+                "Extract literal" ~:
+                  let input = "doSomething = 1 + 1\n"
+                      expectedProgram = "doSomething =one+one where one = 1\n"
+                   in transformFileContents (extractValue (1, 15) (1, 16) "one") input ~?= Left expectedProgram ]

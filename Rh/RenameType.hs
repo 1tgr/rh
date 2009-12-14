@@ -1,11 +1,9 @@
 {-# LANGUAGE PatternGuards, ScopedTypeVariables #-}
 module Rh.RenameType where
 
-import Data.Data
 import Data.Generics.PlateData
-import Language.Haskell.Exts.Annotated
 import List
-import Rh.Monads
+import Rh.Refactoring
 
 renameType :: forall l. (Data l, SrcInfo l) => String -> String -> Module l -> Refactor (Module l)
 renameType oldName newName m = rewriteBiM (asstM :: Asst l -> Refactor (Maybe (Asst l))) m >>=
