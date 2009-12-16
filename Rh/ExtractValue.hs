@@ -35,15 +35,9 @@ parseExp str = do m <- parseFileContents ("result = " ++ str)
 extractValue :: Pos -> Pos -> String -> Module SrcSpanInfo -> Refactor (Module SrcSpanInfo)
 extractValue expStart expEnd name m = rewriteBiM declM m
   where Just matchExp = findExp expStart expEnd m
-        nspan = SrcSpan { srcSpanFilename = "", srcSpanStartLine = 0, srcSpanStartColumn = 0, srcSpanEndLine = 0, srcSpanEndColumn = 0 }
-        nloc = SrcSpanInfo { srcInfoSpan = nspan, srcInfoPoints = repeat nspan }
         ParseOk withExp = parseExp name
         declM t | PatBind l p mt (UnGuardedRhs l' r) mb <- t 
                 , Just r' <- replace matchExp withExp r
-                = let b' = case mb of
-                             Just (BDecls l'' binds) -> BDecls l'' binds
-                             Just (IPBinds l'' binds) -> IPBinds l'' binds
-                             Nothing -> BDecls nloc [ PatBind nloc (PVar nloc (Ident nloc name)) Nothing (UnGuardedRhs nloc withExp) Nothing ]
-                      p' = PatBind l p mt (UnGuardedRhs l' r') (Just b')
+                = let p' = PatBind l p mt (UnGuardedRhs l' r') mb
                    in return $ Just $ trace (show $ dropSrcInfo p') p'
                 | otherwise = return Nothing
